@@ -1,12 +1,12 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+# For more information see: https://github.com
 
 name: sync-rss
 
 on:
   workflow_dispatch: # manual trigger
   schedule:
-    # https://docs.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events
+    # https://github.com
     # Runs every 6 hours
     - cron:  '0 */6 * * *'
 
@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/previous-releases
+        # See supported Node.js release schedule at https://nodejs.org
 
     env:
       NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
@@ -38,3 +38,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run sync || exit 1
+
+  # 🛠️ 这里是新增加的自动保活任务，与上面的 build 任务垂直对齐
+  keep_alive:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write     # 必须赋予修改 actions 的权限才能刷新定时状态
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1 # 自动保活插件
